@@ -2,10 +2,10 @@ mod user;
 
 use std::{env, sync::Arc};
 
-use crate::user::user_routes;
 use actix_web::{get, web::Data, App, HttpServer, Responder, Result};
 use dotenv::dotenv;
 use tokio_postgres::NoTls;
+use user::user_controller;
 
 #[get("/")]
 async fn index() -> impl Responder {
@@ -37,7 +37,7 @@ async fn main() -> Result<(), std::io::Error> {
         App::new()
             .app_data(Data::new(client.clone()))
             .service(index)
-            .configure(user_routes::routes)
+            .configure(user_controller::get_routes)
     })
     .bind(format!("{host}:{port}"))?
     .run()

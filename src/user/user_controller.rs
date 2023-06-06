@@ -1,19 +1,30 @@
-use actix_web::{web, Responder};
+use actix_web::{
+    get, post,
+    web::{self, Data, Json, Path, ServiceConfig},
+    Responder,
+};
 use std::sync::Arc;
 use tokio_postgres::Client;
 
-use super::{
-    create_user_dto::UserCreateDto, find_user_dto::FindUserDto, user_error::UserError, user_service,
+use crate::user::{
+    dto::{create_dto_user::CreateDtoUser, find_user_dto::FindUserDto},
+    user_error::UserError,
+    user_service::UserService,
 };
 
-pub struct UserController(pub web::Data<Arc<Client>>);
+#[post("/user/")]
+async fn create(client: Data<Arc<Client>>, user_create_dto: Json<CreateDtoUser>) -> impl Responder {
+    UserService::new(client).create(user_create_dto.0).await
+}
 
-impl UserController {
-    pub async fn create(self, user_create_dto: UserCreateDto) -> impl Responder {
-        user_service::create(self.0, user_create_dto).await
-    }
+#[get("/user/{id}")]
+async fn find_by_id(
+    client: Data<Arc<Client>>,
+    id: Path<i32>,
+) -> actix_web::Result<web::Json<FindUserDto>, UserError> {
+    UserService::new(client).find_by_id(id.abs()).await
+}
 
-    pub async fn find_by_id(self, id: i32) -> actix_web::Result<web::Json<FindUserDto>, UserError> {
-        user_service::find_by_id(self.0, id).await
-    }
+pub fn get_routes(cfg: &mut ServiceConfig) {
+    cfg.service(create).service(find_by_id);
 }

@@ -949,6 +949,7 @@ name = "rest_api_actix_web"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "derive_more",
  "dotenv",
  "futures",
  "serde",

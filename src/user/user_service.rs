@@ -9,7 +9,7 @@ use tokio_postgres::Client;
 use super::{
     dto::{create_dto_user::CreateDtoUser, find_user_dto::FindUserDto},
     user_error::UserError,
-    user_query::{CREATE_USER, FIND_USER_BY_ID},
+    user_query::{CREATE_USER, DELETE_USER, FIND_USER_BY_ID},
 };
 
 pub struct UserService {
@@ -55,6 +55,18 @@ impl UserService {
             }
 
             Err(_) => return Err(UserError::InternalError),
+        }
+    }
+
+    pub async fn delete(self, id: i32) -> actix_web::Result<impl Responder, UserError> {
+        match self.client.execute(DELETE_USER, &[&id]).await {
+            Ok(result) => {
+                if result == 0 {
+                    return Err(UserError::Delete);
+                }
+                return Ok("Deletado com sucesso");
+            }
+            Err(_) => return Err(UserError::Delete),
         }
     }
 }

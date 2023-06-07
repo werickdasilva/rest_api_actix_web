@@ -10,13 +10,16 @@ pub enum UserError {
     InternalError,
     #[display(fmt = "bad request")]
     NotFoundById,
+    #[display(fmt = "bad request delete")]
+    Delete,
 }
 
 impl ResponseError for UserError {
     fn status_code(&self) -> StatusCode {
         match *self {
             Self::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
-            UserError::NotFoundById => StatusCode::BAD_REQUEST,
+            Self::NotFoundById => StatusCode::BAD_REQUEST,
+            Self::Delete => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 

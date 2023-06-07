@@ -1,5 +1,5 @@
 use actix_web::{
-    get, post,
+    delete, get, post,
     web::{self, Data, Json, Path, ServiceConfig},
     Responder,
 };
@@ -25,6 +25,13 @@ async fn find_by_id(
     UserService::new(client).find_by_id(id.abs()).await
 }
 
+#[delete("/user/{id}")]
+async fn delete(
+    client: Data<Arc<Client>>,
+    id: Path<i32>,
+) -> actix_web::Result<impl Responder, UserError> {
+    UserService::new(client).delete(id.abs()).await
+}
 pub fn get_routes(cfg: &mut ServiceConfig) {
-    cfg.service(create).service(find_by_id);
+    cfg.service(create).service(find_by_id).service(delete);
 }
